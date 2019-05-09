@@ -25,11 +25,6 @@ namespace MapGen
             return "HeightMapGenPass";
         }
 
-        public IEnumerable<string> getPrereqPasses()
-        {
-            return Enumerable.Empty<string>();
-        }
-
         public IEnumerable<string> getReqMapParams()
         {
             return new string[] { CoreDataKeys.PARAM_DIM_KEY, CoreDataKeys.PARAM_MHEIGHT_KEY, CoreDataKeys.PARAM_SEED_KEY };

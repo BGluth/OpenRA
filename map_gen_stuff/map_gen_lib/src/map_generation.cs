@@ -3,11 +3,23 @@ using System.Collections.Generic;
 
 namespace MapGen
 {
+    class PassInfo
+    {
+        public List<string> prereqPasses;
+        public IMapGenPass pass;
+
+        public PassInfo(IMapGenPass pass)
+        {
+            this.prereqPasses = new List<string>();
+            this.pass = pass;
+        }
+    }
+
     public class MapGenInfo : IMapInfo
     {
         const string DEFAULT_MAP_NAME = "Unmamed_Map";
 
-        Queue<IMapGenPass> generationPasses = new Queue<IMapGenPass>();
+        Dictionary<string, PassInfo> passes;
         Dictionary<string, object> mapParams; 
         Dictionary<string, object> mapData;
         HashSet<string> existingMapData;
@@ -15,7 +27,7 @@ namespace MapGen
 
         public MapGenInfo()
         {
-            generationPasses = new Queue<IMapGenPass>();
+            passes = new Dictionary<string, PassInfo>();
             mapParams = new Dictionary<string, object>();
             mapData = new Dictionary<string, object>();
             existingMapData = new HashSet<string>();
@@ -24,7 +36,9 @@ namespace MapGen
 
         public void addPass(IMapGenPass pass)
         {
-            generationPasses.Enqueue(pass);
+            var passKey = pass.getPassName();
+            var passInfo = new PassInfo(pass);
+            passes.Add(passKey, passInfo);
         }
 
         public object getParamData(string paramKey)
@@ -52,6 +66,10 @@ namespace MapGen
             if (!allPassesHaveReqParams())
                 return;
 
+            Queue<PassInfo> generationPasses = new Queue<PassInfo>();
+            foreach (var passInfo in passes.Values)
+                generationPasses.Enqueue(passInfo);
+
             int numItersSinceLastSuccPass = 0;
             while (generationPasses.Count != 0)
             {
@@ -61,19 +79,19 @@ namespace MapGen
                     return;
                 }
 
-                var pass = generationPasses.Dequeue();
+                var passInfo = generationPasses.Dequeue();
 
-                if (!allPrereqPassesHaveRun(pass) || !prereqDataExistsForPass(pass))
+                if (!allPrereqPassesHaveRun(passInfo.prereqPasses) || !prereqDataExistsForPass(passInfo.pass))
                 {
-                    generationPasses.Enqueue(pass);
+                    generationPasses.Enqueue(passInfo);
                     numItersSinceLastSuccPass++;
                     continue;
                 }
 
                 // Ready to run
-                Utils.writeMessage(String.Format("{0}...", pass.getPassDesc()));
-                pass.run(this);
-                finishedPasses.Add(pass.getPassName());
+                Utils.writeMessage(String.Format("{0}...", passInfo.pass.getPassDesc()));
+                passInfo.pass.run(this);
+                finishedPasses.Add(passInfo.pass.getPassName());
                 numItersSinceLastSuccPass = 0;
             }
 
@@ -90,14 +108,14 @@ namespace MapGen
         {
             bool ok = true;
 
-            foreach (var pass in generationPasses)
+            foreach (var passInfo in passes.Values)
             {
-                foreach (var reqParam in pass.getReqMapParams())
+                foreach (var reqParam in passInfo.pass.getReqMapParams())
                 {
                     if (!existingMapData.Contains(reqParam))
                     {
                         ok = false;
-                        var passName = pass.getPassName();
+                        var passName = passInfo.pass.getPassName();
                         Utils.writeMessage(String.Format("Map pass \"{0}\" is missing required parameter \"{1}\".", passName, reqParam));
                     }
                 }
@@ -112,11 +130,11 @@ namespace MapGen
                 mapParams[CoreDataKeys.PARAM_MAP_NAME_KEY] = DEFAULT_MAP_NAME;
         }
 
-        bool allPrereqPassesHaveRun(IMapGenPass passToCheck)
+        bool allPrereqPassesHaveRun(IEnumerable<string> prereqPasses)
         {
-            foreach (var prereqPassName in passToCheck.getPrereqPasses())
+            foreach (var prereqPassKey in prereqPasses)
             {
-                if (!finishedPasses.Contains(prereqPassName))
+                if (!finishedPasses.Contains(prereqPassKey))
                     return false;
             }
 

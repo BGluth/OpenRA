@@ -1,4 +1,4 @@
-
+﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27130.2010
@@ -178,6 +178,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tiberian Sun Lua scripts", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenRA.StyleCheck", "OpenRA.StyleCheck\OpenRA.StyleCheck.csproj", "{5FEAB6DC-4E81-4B63-958B-22FC3534C606}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "map_gen_stuff", "map_gen_stuff", "{D43B51B7-024E-4B17-B71A-47EC58384656}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "map_gen_stuff", "map_gen_stuff\map_gen_lib\map_gen_stuff.csproj", "{62846950-7860-4712-80B6-449790BB8D9E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -220,6 +224,10 @@ Global
 		{5FEAB6DC-4E81-4B63-958B-22FC3534C606}.Debug|x86.Build.0 = Debug|x86
 		{5FEAB6DC-4E81-4B63-958B-22FC3534C606}.Release|x86.ActiveCfg = Release|x86
 		{5FEAB6DC-4E81-4B63-958B-22FC3534C606}.Release|x86.Build.0 = Release|x86
+		{62846950-7860-4712-80B6-449790BB8D9E}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{62846950-7860-4712-80B6-449790BB8D9E}.Debug|x86.Build.0 = Debug|Any CPU
+		{62846950-7860-4712-80B6-449790BB8D9E}.Release|x86.ActiveCfg = Release|Any CPU
+		{62846950-7860-4712-80B6-449790BB8D9E}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -395,5 +403,8 @@ Global
 		$35.LineAlign = 0
 		$34.inheritsSet = Mono
 		outputpath = .
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{62846950-7860-4712-80B6-449790BB8D9E} = {D43B51B7-024E-4B17-B71A-47EC58384656}
 	EndGlobalSection
 EndGlobal

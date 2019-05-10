@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace MapGen
 {
@@ -15,6 +16,37 @@ namespace MapGen
         }
     }
 
+    class MapDataUsage
+    {
+        int numReaders;
+        bool passIsWriting;
+
+        public bool canWrite()
+        {
+            return numReaders == 0 && passIsWriting == false;
+        }
+
+        public bool canRead()
+        {
+            return passIsWriting == false;
+        }
+
+        public void addReader()
+        {
+            numReaders++;
+        }
+
+        public void removeReader()
+        {
+            numReaders--;
+        }
+
+        public void setWriting(bool state)
+        {
+            passIsWriting = state;
+        }
+    }
+
     public class MapGenInfo : IMapInfo
     {
         const string DEFAULT_MAP_NAME = "Unmamed_Map";
@@ -22,15 +54,15 @@ namespace MapGen
         Dictionary<string, PassInfo> passes;
         Dictionary<string, object> mapParams; 
         Dictionary<string, object> mapData;
-        HashSet<string> existingMapData;
+        Dictionary<string, MapDataUsage> mapDataUsageState;
         HashSet<string> finishedPasses;
+
 
         public MapGenInfo()
         {
             passes = new Dictionary<string, PassInfo>();
             mapParams = new Dictionary<string, object>();
             mapData = new Dictionary<string, object>();
-            existingMapData = new HashSet<string>();
             finishedPasses = new HashSet<string>();
         }
 
@@ -63,6 +95,8 @@ namespace MapGen
 
         public void generateMap()
         {
+            setupMapDataUsageStates();
+
             if (!allPassesHaveReqParams())
                 return;
 
@@ -81,7 +115,7 @@ namespace MapGen
 
                 var passInfo = generationPasses.Dequeue();
 
-                if (!allPrereqPassesHaveRun(passInfo.prereqPasses) || !prereqDataExistsForPass(passInfo.pass))
+                if (passIsAbleToRun(passInfo))
                 {
                     generationPasses.Enqueue(passInfo);
                     numItersSinceLastSuccPass++;
@@ -89,8 +123,12 @@ namespace MapGen
                 }
 
                 // Ready to run
-                Utils.writeMessage(String.Format("{0}...", passInfo.pass.getPassDesc()));
+                updateDataReadWriteStateForPassStart(passInfo.pass);
+
+                Utils.writeMessage(String.Format("Starting {0}...", passInfo.pass.getPassDesc()));
                 passInfo.pass.run(this);
+
+                updateDataReadWriteStateForPassEnd(passInfo.pass);
                 finishedPasses.Add(passInfo.pass.getPassName());
                 numItersSinceLastSuccPass = 0;
             }
@@ -112,7 +150,7 @@ namespace MapGen
             {
                 foreach (var reqParam in passInfo.pass.getReqMapParams())
                 {
-                    if (!existingMapData.Contains(reqParam))
+                    if (!mapDataUsageState.ContainsKey(reqParam))
                     {
                         ok = false;
                         var passName = passInfo.pass.getPassName();
@@ -124,10 +162,28 @@ namespace MapGen
             return ok;
         }
         
+        bool passIsAbleToRun(PassInfo passInfo)
+        {
+            return
+                allPrereqPassesHaveRun(passInfo.prereqPasses) &&
+                prereqDataExistsForPass(passInfo.pass) &&
+                passCanAccessAllNeededReadData(passInfo.pass.getMapDataRead()) &&
+                passCanAccessAllNeededWriteData(passInfo.pass.getMapDataWritten());
+        }
+
         void setupDefaultValuesForMissingKeyParams()
         {
             if (!mapParams.ContainsKey(CoreDataKeys.PARAM_MAP_NAME_KEY))
                 mapParams[CoreDataKeys.PARAM_MAP_NAME_KEY] = DEFAULT_MAP_NAME;
+        }
+
+        void setupMapDataUsageStates()
+        {
+            foreach (var passInfo in passes.Values)
+            {
+                addUsageEntryForUnseenMapDataTypes(passInfo.pass.getMapDataRead());
+                addUsageEntryForUnseenMapDataTypes(passInfo.pass.getMapDataWritten());
+            }
         }
 
         bool allPrereqPassesHaveRun(IEnumerable<string> prereqPasses)
@@ -141,6 +197,18 @@ namespace MapGen
             return true;
         }
 
+        void updateDataReadWriteStateForPassStart(IMapGenPass pass)
+        {
+            foreach (var readKey in pass.getMapDataRead()) { mapDataUsageState[readKey].addReader(); }
+            foreach (var writeKey in pass.getMapDataWritten()) { mapDataUsageState[writeKey].setWriting(true); }
+        }
+
+        void updateDataReadWriteStateForPassEnd(IMapGenPass pass)
+        {
+            foreach (var readKey in pass.getMapDataRead()) { mapDataUsageState[readKey].removeReader(); }
+            foreach (var writeKey in pass.getMapDataWritten()) { mapDataUsageState[writeKey].setWriting(false); }
+        }
+
         bool prereqDataExistsForPass(IMapGenPass pass)
         {
             foreach (var reqMapDataKey in pass.getMapDataRead())
@@ -150,6 +218,26 @@ namespace MapGen
             }
 
             return true;
+        }
+
+        void addUsageEntryForUnseenMapDataTypes(IEnumerable<string> mapDataTypes)
+        {
+            foreach (var readDataKey in mapDataTypes)
+            {
+                if (!mapDataUsageState.ContainsKey(readDataKey))
+                    mapDataUsageState[readDataKey] = new MapDataUsage();
+            }
+        }
+
+        // Could condense these two functions, but just thinking of readability at the call sites
+        bool passCanAccessAllNeededReadData(IEnumerable<string> dataThatPassNeedsToRead)
+        {
+            return Enumerable.All(dataThatPassNeedsToRead, readKey => mapDataUsageState[readKey].canRead());
+        }
+
+        bool passCanAccessAllNeededWriteData(IEnumerable<string> dataThatPassNeedsToWrite)
+        {
+            return Enumerable.All(dataThatPassNeedsToWrite, writeKey => mapDataUsageState[writeKey].canWrite());
         }
     }
 }

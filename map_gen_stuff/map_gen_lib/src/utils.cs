@@ -18,12 +18,12 @@ namespace MapGen
 
         public static void writeWarning(string message)
         {
-
+            Console.WriteLine("WARNING: {}", message);
         }
 
         public static void writeError(string message)
         {
-
+            Console.WriteLine("ERROR: {}", message);
         }
 
         public static T listSwapRemove<T>(IList<T> a, int idx)

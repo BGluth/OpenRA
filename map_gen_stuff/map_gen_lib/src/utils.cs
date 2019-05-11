@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace MapGen
 {
@@ -23,6 +24,14 @@ namespace MapGen
         public static void writeError(string message)
         {
 
+        }
+
+        public static T listSwapRemove<T>(IList<T> a, int idx)
+        {
+            var tmp = a[idx];
+            a[idx] = a[a.Count - 1];
+            a.RemoveAt(a.Count - 1);
+            return tmp;
         }
 
     }

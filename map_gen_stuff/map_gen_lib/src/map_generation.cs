@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 namespace MapGen
 {
@@ -56,6 +58,9 @@ namespace MapGen
         Dictionary<string, object> mapData;
         Dictionary<string, MapDataUsage> mapDataUsageState;
         HashSet<string> finishedPasses;
+        ConcurrentQueue<PassInfo> passesAwatingCompletionProcessing = new ConcurrentQueue<PassInfo>();
+
+        int numThreadsFree;
 
 
         public MapGenInfo()
@@ -93,48 +98,55 @@ namespace MapGen
             return mapData[dataKey];
         }
 
-        public void generateMap()
+        public void generateMap(int numThreads)
         {
             setupMapDataUsageStates();
 
             if (!allPassesHaveReqParams())
                 return;
 
-            Queue<PassInfo> generationPasses = new Queue<PassInfo>();
-            foreach (var passInfo in passes.Values)
-                generationPasses.Enqueue(passInfo);
+            var remainingPasses = new List<PassInfo>();
+            var passesThatAreReadyToRun = new Queue<PassInfo>();
 
-            int numItersSinceLastSuccPass = 0;
-            while (generationPasses.Count != 0)
+            foreach (var passInfo in passes.Values)
+                remainingPasses.Add(passInfo);
+
+            // -1 to stop a false positive at start
+            int numTasksCompletedSinceLastIter = -1;
+            numThreadsFree = numThreads;
+            while (remainingPasses.Count != 0)
             {
-                if (numItersSinceLastSuccPass == generationPasses.Count)
+                if (numTasksCompletedSinceLastIter == 0 && numThreadsFree == numThreads)
                 {
                     Utils.writeError("Depencency cycle detectected with passes! Aborting!");
                     return;
                 }
 
-                var passInfo = generationPasses.Dequeue();
+                numTasksCompletedSinceLastIter = processAnyPassCompletedMessages();
+                upgradeAnyPassesThatCanRunToReady(remainingPasses, passesThatAreReadyToRun);
 
-                if (passIsAbleToRun(passInfo))
+                while (numThreadsFree > 0 && passesThatAreReadyToRun.Count > 0)
                 {
-                    generationPasses.Enqueue(passInfo);
-                    numItersSinceLastSuccPass++;
-                    continue;
+                    var passInfo = passesThatAreReadyToRun.Dequeue();
+
+                    numThreadsFree--;
+                    updateDataReadWriteStateForPassStart(passInfo.pass);
+
+                    Utils.writeMessage(String.Format("Starting {0}...", passInfo.pass.getPassDesc()));
+                    ThreadPool.QueueUserWorkItem(threadRunPass, passInfo.pass);
                 }
-
-                // Ready to run
-                updateDataReadWriteStateForPassStart(passInfo.pass);
-
-                Utils.writeMessage(String.Format("Starting {0}...", passInfo.pass.getPassDesc()));
-                passInfo.pass.run(this);
-
-                updateDataReadWriteStateForPassEnd(passInfo.pass);
-                finishedPasses.Add(passInfo.pass.getPassName());
-                numItersSinceLastSuccPass = 0;
             }
 
             var mapName = CoreDataKeys.getMapName(this);
             Utils.writeMessage(String.Format("Finished generating \"{0}\".", mapName));
+        }
+
+        void threadRunPass(object passObj)
+        {
+            PassInfo passInfo = (PassInfo)passObj;
+            passInfo.pass.run(this);
+            Utils.writeMessage(String.Format("Finished {}", passInfo.pass.getPassDesc()));
+            passesAwatingCompletionProcessing.Enqueue(passInfo);
         }
 
         public float getCurrPassPercComplete()
@@ -162,6 +174,34 @@ namespace MapGen
             return ok;
         }
         
+        void upgradeAnyPassesThatCanRunToReady(IList<PassInfo> remainingPasses, Queue<PassInfo> readyToRunPasses)
+        {
+            for (int i = remainingPasses.Count - 1; i >= 0; i--)
+            {
+                var passInfo = remainingPasses[i];
+                if (passIsAbleToRun(passInfo))
+                {
+                    readyToRunPasses.Enqueue(passInfo);
+                    Utils.listSwapRemove(remainingPasses, i);
+                    updateDataReadWriteStateForPassStart(passInfo.pass);
+                }
+            }
+        }
+
+        int processAnyPassCompletedMessages()
+        {
+            int numCompletedPasses = 0;
+            foreach (var pInfo in passesAwatingCompletionProcessing)
+            {
+                finishedPasses.Add(pInfo.pass.getPassName());
+                updateDataReadWriteStateForPassEnd(pInfo.pass);
+                numThreadsFree++;
+                numCompletedPasses++;
+            }
+
+            return numCompletedPasses;
+        }
+
         bool passIsAbleToRun(PassInfo passInfo)
         {
             return

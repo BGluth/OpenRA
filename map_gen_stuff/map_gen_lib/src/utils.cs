@@ -7,6 +7,12 @@ namespace MapGen
     {
         public int x;
         public int y;
+
+        public Vector2(int x, int y)
+        {
+            this.x = x;
+            this.y = y;
+        }
     }
 
     static class Utils
@@ -33,6 +39,5 @@ namespace MapGen
             a.RemoveAt(a.Count - 1);
             return tmp;
         }
-
     }
 }

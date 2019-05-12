@@ -59,7 +59,8 @@ namespace MapGen
                             bMap.SetPixel(xImage, yImage, col);
                 }
 
-            var stream = new SKFileWStream(cParams.imgName);
+            var imgNameWithExt = string.Format("{0}.png", cParams.imgName);
+            var stream = new SKFileWStream(imgNameWithExt);
             SKPixmap.Encode(stream, bMap, SKEncodedImageFormat.Png, 100);
         }
     }

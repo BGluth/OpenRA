@@ -76,6 +76,7 @@ namespace MapGen
             new DefaultValueEntry(CoreDataKeys.PARAM_MAP_NAME_KEY, () => DEFAULT_MAP_NAME),
             new DefaultValueEntry(CoreDataKeys.PARAM_SEED_KEY, () => new Random().Next())
         };
+        EventWaitHandle threadFinishedPassEvent = new EventWaitHandle(false, EventResetMode.AutoReset);
 
         int numThreadsFree;
 
@@ -169,6 +170,8 @@ namespace MapGen
                     Utils.writeMessage(String.Format("Starting {0}...", passInfo.pass.getPassDesc()));
                     ThreadPool.QueueUserWorkItem(threadRunPass, passInfo);
                 }
+
+                threadFinishedPassEvent.WaitOne();
             }
 
             var mapName = CoreDataKeys.getMapName(this);
@@ -181,6 +184,7 @@ namespace MapGen
             passInfo.pass.run(this);
             Utils.writeMessage(String.Format("Finished {0}", passInfo.pass.getPassDesc()));
             passesAwatingCompletionProcessing.Enqueue(passInfo);
+            threadFinishedPassEvent.Set();
         }
 
         public float getCurrPassPercComplete()

@@ -78,6 +78,15 @@ namespace MapGen
             passes.Add(passKey, passInfo);
         }
 
+        public void addPass(IMapGenPass pass, params string[] prereqPasses)
+        {
+            addPass(pass);
+
+            var passPrereqsList = passes[pass.getPassName()].prereqPasses;
+            foreach (var passKey in prereqPasses)
+                passPrereqsList.Add(passKey);
+        }
+
         public object getParamData(string paramKey)
         {
             return mapParams[paramKey];

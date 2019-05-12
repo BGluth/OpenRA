@@ -17,12 +17,12 @@ namespace MapGen
 
         public string getPassDesc()
         {
-            return "Generating heightmaps";
+            return "Generating terrain heightmaps";
         }
 
         public string getPassName()
         {
-            return "HeightMapGenPass";
+            return "HeightMapGen";
         }
 
         public IEnumerable<string> getReqMapParams()

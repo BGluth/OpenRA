@@ -22,7 +22,7 @@ namespace MapGen
 
         public string getPassName()
         {
-            return "SetWaterLevelPass";
+            return "SetWaterLevel";
         }
 
         public IEnumerable<string> getReqMapParams()

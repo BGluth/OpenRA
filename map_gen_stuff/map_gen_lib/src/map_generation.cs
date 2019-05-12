@@ -133,6 +133,7 @@ namespace MapGen
 
         public void generateMap(int numThreads)
         {
+            setupDefaultValuesForMissingKeyParams();
             setupMapDataUsageStates();
 
             if (!allPassesHaveReqParams())

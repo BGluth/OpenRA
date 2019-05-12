@@ -68,7 +68,9 @@ namespace MapGen
             passes = new Dictionary<string, PassInfo>();
             mapParams = new Dictionary<string, object>();
             mapData = new Dictionary<string, object>();
+            mapDataUsageState = new Dictionary<string, MapDataUsage>();
             finishedPasses = new HashSet<string>();
+            passesAwatingCompletionProcessing = new ConcurrentQueue<PassInfo>();
         }
 
         public string addPass(IMapGenPass pass)
@@ -176,7 +178,7 @@ namespace MapGen
             {
                 foreach (var reqParam in passInfo.pass.getReqMapParams())
                 {
-                    if (!mapDataUsageState.ContainsKey(reqParam))
+                    if (!mapParams.ContainsKey(reqParam))
                     {
                         ok = false;
                         var passName = passInfo.pass.getPassName();

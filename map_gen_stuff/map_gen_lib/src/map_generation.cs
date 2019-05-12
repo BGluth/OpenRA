@@ -167,7 +167,7 @@ namespace MapGen
                     updateDataReadWriteStateForPassStart(passInfo.pass);
 
                     Utils.writeMessage(String.Format("Starting {0}...", passInfo.pass.getPassDesc()));
-                    ThreadPool.QueueUserWorkItem(threadRunPass, passInfo.pass);
+                    ThreadPool.QueueUserWorkItem(threadRunPass, passInfo);
                 }
             }
 
@@ -179,7 +179,7 @@ namespace MapGen
         {
             PassInfo passInfo = (PassInfo)passObj;
             passInfo.pass.run(this);
-            Utils.writeMessage(String.Format("Finished {}", passInfo.pass.getPassDesc()));
+            Utils.writeMessage(String.Format("Finished {0}", passInfo.pass.getPassDesc()));
             passesAwatingCompletionProcessing.Enqueue(passInfo);
         }
 

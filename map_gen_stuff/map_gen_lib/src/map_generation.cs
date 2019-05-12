@@ -71,20 +71,25 @@ namespace MapGen
             finishedPasses = new HashSet<string>();
         }
 
-        public void addPass(IMapGenPass pass)
+        public string addPass(IMapGenPass pass)
         {
             var passKey = pass.getPassName();
             var passInfo = new PassInfo(pass);
             passes.Add(passKey, passInfo);
+
+            return passKey;
         }
 
-        public void addPass(IMapGenPass pass, params string[] prereqPasses)
+        public string addPass(IMapGenPass pass, params string[] prereqPasses)
         {
             addPass(pass);
 
-            var passPrereqsList = passes[pass.getPassName()].prereqPasses;
-            foreach (var passKey in prereqPasses)
-                passPrereqsList.Add(passKey);
+            string passKey = pass.getPassName();
+            var passPrereqsList = passes[passKey].prereqPasses;
+            foreach (var prereqPassKey in prereqPasses)
+                passPrereqsList.Add(prereqPassKey);
+
+            return passKey;
         }
 
         public object getParamData(string paramKey)

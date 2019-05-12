@@ -49,6 +49,18 @@ namespace MapGen
         }
     }
 
+    struct DefaultValueEntry
+    {
+        public string paramName;
+        public Func<object> defValFunc;
+
+        public DefaultValueEntry(string paramName, Func<object> defValFunc)
+        {
+            this.paramName = paramName;
+            this.defValFunc = defValFunc;
+        }
+    }
+
     public class MapGenInfo : IMapInfo
     {
         const string DEFAULT_MAP_NAME = "Unmamed_Map";
@@ -59,6 +71,11 @@ namespace MapGen
         Dictionary<string, MapDataUsage> mapDataUsageState;
         HashSet<string> finishedPasses;
         ConcurrentQueue<PassInfo> passesAwatingCompletionProcessing = new ConcurrentQueue<PassInfo>();
+        DefaultValueEntry[] defParams =
+        {
+            new DefaultValueEntry(CoreDataKeys.PARAM_MAP_NAME_KEY, () => DEFAULT_MAP_NAME),
+            new DefaultValueEntry(CoreDataKeys.PARAM_SEED_KEY, () => new Random().Next())
+        };
 
         int numThreadsFree;
 
@@ -229,8 +246,11 @@ namespace MapGen
 
         void setupDefaultValuesForMissingKeyParams()
         {
-            if (!mapParams.ContainsKey(CoreDataKeys.PARAM_MAP_NAME_KEY))
-                mapParams[CoreDataKeys.PARAM_MAP_NAME_KEY] = DEFAULT_MAP_NAME;
+            foreach (var defEntry in defParams)
+            {
+                if (!mapParams.ContainsKey(defEntry.paramName))
+                    mapParams[defEntry.paramName] = defEntry.defValFunc();
+            }
         }
 
         void setupMapDataUsageStates()

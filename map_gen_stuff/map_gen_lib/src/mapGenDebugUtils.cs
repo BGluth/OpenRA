@@ -42,26 +42,21 @@ namespace MapGen
 
         static void generateMap(CommonParams cParams, Vector2 mDim, Func<int, int, SKColor> get_color_func)
         {
-            var bMap = new SKBitmap(mDim.x * cParams.scalingFactor, mDim.y * cParams.scalingFactor, false);
+            var bMap = new SKBitmap(mDim.x, mDim.y, false);
 
-            for (int xNoise = 0; xNoise < mDim.x; xNoise++)
-                for (int yNoise = 0; yNoise < mDim.y; yNoise++)
+            for (int x = 0; x < mDim.x; x++)
+                for (int y = 0; y < mDim.y; y++)
                 {
-                    var col = get_color_func(xNoise, yNoise);
-
-                    var xImgStrt = xNoise * cParams.scalingFactor;
-                    var xImgEnd = xImgStrt + cParams.scalingFactor;
-                    var yImgStrt = yNoise * cParams.scalingFactor;
-                    var yImgEnd = yImgStrt + cParams.scalingFactor;
-
-                    for (int xImage = xImgStrt; xImage < xImgEnd; xImage++)
-                        for (int yImage = yImgStrt; yImage < yImgEnd; yImage++)
-                            bMap.SetPixel(xImage, yImage, col);
+                    var col = get_color_func(x, y);
+                    bMap.SetPixel(x, y, col);
                 }
+
+            var bMapResized = new SKBitmap(mDim.x * cParams.scalingFactor, mDim.y * cParams.scalingFactor);
+            bMap.ScalePixels(bMapResized, SKFilterQuality.None);
 
             var imgNameWithExt = string.Format("{0}.png", cParams.imgName);
             var stream = new SKFileWStream(imgNameWithExt);
-            SKPixmap.Encode(stream, bMap, SKEncodedImageFormat.Png, 100);
+            SKPixmap.Encode(stream, bMapResized, SKEncodedImageFormat.Png, 100);
         }
     }
 }

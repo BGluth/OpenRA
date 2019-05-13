@@ -149,7 +149,7 @@ namespace MapGen
             // -1 to stop a false positive at start
             int numTasksCompletedSinceLastIter = -1;
             numThreadsFree = numThreads;
-            while (remainingPasses.Count != 0)
+            while (remainingPasses.Count != 0 || numThreadsFree != numThreads)
             {
                 if (numTasksCompletedSinceLastIter == 0 && numThreadsFree == numThreads)
                 {
@@ -165,7 +165,6 @@ namespace MapGen
                     var passInfo = passesThatAreReadyToRun.Dequeue();
 
                     numThreadsFree--;
-                    updateDataReadWriteStateForPassStart(passInfo.pass);
 
                     Utils.writeMessage(String.Format("Starting {0}...", passInfo.pass.getPassDesc()));
                     ThreadPool.QueueUserWorkItem(threadRunPass, passInfo);
@@ -294,7 +293,7 @@ namespace MapGen
         {
             foreach (var reqMapDataKey in pass.getMapDataRead())
             {
-                if (!finishedPasses.Contains(reqMapDataKey))
+                if (!mapData.ContainsKey(reqMapDataKey))
                     return false;
             }
 

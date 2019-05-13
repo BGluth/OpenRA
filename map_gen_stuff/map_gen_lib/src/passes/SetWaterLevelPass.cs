@@ -66,10 +66,11 @@ namespace MapGen
             int tot_cells_that_need_to_be_covered = (int)(total_cells * map_water_perc);
 
             int curr_height = 0;
-            while (num_tiles_covered > tot_cells_that_need_to_be_covered)
+            while (num_tiles_covered < tot_cells_that_need_to_be_covered)
             {
                 num_tiles_covered += num_cells_with_height_table[curr_height];
                 needed_water_level++;
+                curr_height++;
             }
 
             return needed_water_level;

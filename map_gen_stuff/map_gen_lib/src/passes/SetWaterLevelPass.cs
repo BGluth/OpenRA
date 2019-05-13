@@ -34,7 +34,7 @@ namespace MapGen
         {
             var hMap = (HeightMap)mapData.getMapData(CoreDataKeys.MDATA_HEIGHT_MAP_KEY);
             var maxHeight = (int)mapData.getParamData(CoreDataKeys.PARAM_MHEIGHT_KEY);
-            var map_water_perc = (int)mapData.getParamData(CoreDataKeys.PARAM_WATER_PERC_KEY);
+            var map_water_perc = (float)mapData.getParamData(CoreDataKeys.PARAM_WATER_PERC_KEY);
 
             var num_cells_at_height_table = count_num_cells_with_each_height_level(hMap, maxHeight);
             var water_level = determine_needed_water_level_to_cover_perc_of_map(num_cells_at_height_table, hMap.dim, map_water_perc);

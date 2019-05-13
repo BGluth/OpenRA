@@ -22,7 +22,7 @@ namespace MapGen
             Func<int, int, SKColor> heightValToGreyColFunc = delegate (int x, int y)
             {
                 var col = (byte)(((float)noise[x, y] / (float)maxVal) * 256);
-                return new SKColor(col, col, col, 0);
+                return new SKColor(col, col, col, 255);
             };
 
             Vector2 mDim = new Vector2(noise.GetLength(0), noise.GetLength(1));
@@ -42,7 +42,7 @@ namespace MapGen
 
         static void generateMap(CommonParams cParams, Vector2 mDim, Func<int, int, SKColor> get_color_func)
         {
-            var bMap = new SKBitmap(mDim.x, mDim.y, false);
+            var bMap = new SKBitmap(mDim.x * cParams.scalingFactor, mDim.y * cParams.scalingFactor, false);
 
             for (int xNoise = 0; xNoise < mDim.x; xNoise++)
                 for (int yNoise = 0; yNoise < mDim.y; yNoise++)

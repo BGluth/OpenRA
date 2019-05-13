@@ -40,8 +40,8 @@ namespace MapGen
 
             var wMap = (bool[,])mapData.getMapData(CoreDataKeys.MDATA_WATER_COVERED_CELLS);
             cParams = new MapGenDebugUtils.CommonParams("Sea_Coverage_Map", 2);
-            var waterCol = new SKColor(86, 190, 255, 0);
-            var landCol = new SKColor(66, 242, 43, 0);
+            var waterCol = new SKColor(86, 190, 255, 255);
+            var landCol = new SKColor(66, 242, 43, 255);
             MapGenDebugUtils.generateBoolMap(cParams, wMap, landCol, waterCol);
         }
     }

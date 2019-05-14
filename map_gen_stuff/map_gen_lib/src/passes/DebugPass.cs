@@ -9,7 +9,7 @@ namespace MapGen
     {
         public IEnumerable<string> getMapDataRead()
         {
-            return new string[] { CoreDataKeys.MDATA_HEIGHT_MAP_KEY, CoreDataKeys.MDATA_WATER_COVERED_CELLS };
+            return new string[] { CoreDataKeys.MDATA_HEIGHT_MAP_KEY, CoreDataKeys.MDATA_WATER_COVERED_CELLS_KEY };
         }
 
         public IEnumerable<string> getMapDataWritten()
@@ -38,7 +38,7 @@ namespace MapGen
             var cParams = new MapGenDebugUtils.CommonParams("Height_Map", 2);
             MapGenDebugUtils.generateGreyscaleNoiseImage(cParams, hMap.cells, 255);
 
-            var wMap = (bool[,])mapData.getMapData(CoreDataKeys.MDATA_WATER_COVERED_CELLS);
+            var wMap = (bool[,])mapData.getMapData(CoreDataKeys.MDATA_WATER_COVERED_CELLS_KEY);
             cParams = new MapGenDebugUtils.CommonParams("Sea_Coverage_Map", 2);
             var waterCol = new SKColor(86, 190, 255, 255);
             var landCol = new SKColor(66, 242, 43, 255);

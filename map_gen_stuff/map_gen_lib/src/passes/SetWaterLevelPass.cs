@@ -12,7 +12,7 @@ namespace MapGen
 
         public IEnumerable<string> getMapDataWritten()
         {
-            return new string[] { CoreDataKeys.MDATA_WATER_COVERED_CELLS, CoreDataKeys.MDATA_SEA_LEVEL_HEIGHT_KEY };
+            return new string[] { CoreDataKeys.MDATA_WATER_COVERED_CELLS_KEY, CoreDataKeys.MDATA_SEA_LEVEL_HEIGHT_KEY };
         }
 
         public string getPassDesc()
@@ -40,7 +40,7 @@ namespace MapGen
             var water_level = determine_needed_water_level_to_cover_perc_of_map(num_cells_at_height_table, hMap.dim, map_water_perc);
             var cell_is_water_table = determine_cell_map_covered_by_water(hMap, water_level);
             
-            mapData.writeMapData(CoreDataKeys.MDATA_WATER_COVERED_CELLS, cell_is_water_table);
+            mapData.writeMapData(CoreDataKeys.MDATA_WATER_COVERED_CELLS_KEY, cell_is_water_table);
             mapData.writeMapData(CoreDataKeys.MDATA_SEA_LEVEL_HEIGHT_KEY, water_level);
         }
 

@@ -45,7 +45,7 @@ namespace MapGen
 
         int[] count_num_cells_with_each_height_level(HeightMap hMap, int maxHeight)
         {
-            var num_cells_at_height_table = new int[maxHeight];
+            var num_cells_at_height_table = new int[maxHeight + 1];
 
             // Do a pass to determine the number of tiles at each possible height
             for (int x = 0; x < hMap.dim.x; x++)

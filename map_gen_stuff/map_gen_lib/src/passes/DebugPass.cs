@@ -36,7 +36,7 @@ namespace MapGen
         {
             var hMap = (HeightMap)mapData.getMapData(CoreDataKeys.MDATA_HEIGHT_MAP_KEY);
             var cParams = new MapGenDebugUtils.CommonParams("Height_Map", 2);
-            MapGenDebugUtils.generateGreyscaleNoiseImage(cParams, hMap.cells, 256);
+            MapGenDebugUtils.generateGreyscaleNoiseImage(cParams, hMap.cells, 255);
 
             var wMap = (bool[,])mapData.getMapData(CoreDataKeys.MDATA_WATER_COVERED_CELLS);
             cParams = new MapGenDebugUtils.CommonParams("Sea_Coverage_Map", 2);

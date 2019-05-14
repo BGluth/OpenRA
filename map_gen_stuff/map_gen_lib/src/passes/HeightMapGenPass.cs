@@ -40,6 +40,7 @@ namespace MapGen
             var noiseGen = new FastNoise();
 
             noiseGen.SetNoiseType(FastNoise.NoiseType.CubicFractal);
+            noiseGen.SetFractalType(FastNoise.FractalType.FBM);
             noiseGen.SetSeed(seed);
             noiseGen.SetFractalOctaves(5);
             noiseGen.SetFractalGain(0.5f);
@@ -48,7 +49,8 @@ namespace MapGen
             for (int x = 0; x < map_dim.x; x++)
                 for (int y = 0; y < map_dim.y; y++)
                 {
-                    var noise_val = (byte)(noiseGen.GetCubicFractal(x, y) * max_height);
+                    var noise = ((noiseGen.GetCubicFractal(x, y) + 1.0f) / 2.0);
+                    var noise_val = (byte)(noise * max_height);
                     hMap.cells[x, y] = noise_val;
                 }
 

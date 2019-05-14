@@ -21,7 +21,7 @@ namespace MapGen
         {
             Func<int, int, SKColor> heightValToGreyColFunc = delegate (int x, int y)
             {
-                var col = (byte)(((float)noise[x, y] / (float)maxVal) * 256);
+                var col = (byte)(((float)noise[x, y] / (float)maxVal) * 255);
                 return new SKColor(col, col, col, 255);
             };
 

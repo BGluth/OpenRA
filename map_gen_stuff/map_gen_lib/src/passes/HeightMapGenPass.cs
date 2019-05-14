@@ -5,6 +5,19 @@ namespace MapGen
 {
     public class HeightMapGenPass : IMapGenPass
     {
+        int numOct;
+        float gain;
+        float freq;
+        float lacunarity;
+
+        public HeightMapGenPass(int numOct, float gain, float freq, float lac)
+        {
+            this.numOct = numOct;
+            this.gain = gain;
+            this.freq = freq;
+            this.lacunarity = lac;
+        }
+
         public IEnumerable<string> getMapDataWritten()
         {
             return new string[] {CoreDataKeys.MDATA_HEIGHT_MAP_KEY};
@@ -39,12 +52,14 @@ namespace MapGen
             HeightMap hMap = new HeightMap(map_dim, max_height);
             var noiseGen = new FastNoise();
 
+            // TODO: Later make this stuff parameters...
             noiseGen.SetNoiseType(FastNoise.NoiseType.CubicFractal);
             noiseGen.SetFractalType(FastNoise.FractalType.FBM);
             noiseGen.SetSeed(seed);
-            noiseGen.SetFractalOctaves(5);
-            noiseGen.SetFractalGain(0.5f);
-            noiseGen.SetFrequency(2.0f);
+            noiseGen.SetFractalOctaves(numOct);
+            noiseGen.SetFractalGain(gain);
+            noiseGen.SetFrequency(freq);
+            noiseGen.SetFractalLacunarity(lacunarity);
 
             for (int x = 0; x < map_dim.x; x++)
                 for (int y = 0; y < map_dim.y; y++)

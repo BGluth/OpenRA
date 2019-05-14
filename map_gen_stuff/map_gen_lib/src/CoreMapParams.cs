@@ -10,6 +10,7 @@ namespace MapGen
 
         public static string MDATA_HEIGHT_MAP_KEY = "height_map";
         public static string MDATA_WATER_COVERED_CELLS = "Water_covered_cells";
+        public static string MDATA_SEA_LEVEL_HEIGHT_KEY = "sea_level_height";
         
 
         public static string getMapName(IMapInfo info)

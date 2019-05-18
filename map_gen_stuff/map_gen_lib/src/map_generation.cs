@@ -157,7 +157,6 @@ namespace MapGen
                     return;
                 }
 
-                numTasksCompletedSinceLastIter = processAnyPassCompletedMessages();
                 upgradeAnyPassesThatCanRunToReady(remainingPasses, passesThatAreReadyToRun);
 
                 while (numThreadsFree > 0 && passesThatAreReadyToRun.Count > 0)
@@ -171,6 +170,7 @@ namespace MapGen
                 }
 
                 threadFinishedPassEvent.WaitOne();
+                numTasksCompletedSinceLastIter = processAnyPassCompletedMessages();
             }
 
             var mapName = CoreDataKeys.getMapName(this);
@@ -228,8 +228,12 @@ namespace MapGen
         int processAnyPassCompletedMessages()
         {
             int numCompletedPasses = 0;
-            foreach (var pInfo in passesAwatingCompletionProcessing)
+
+            while (!passesAwatingCompletionProcessing.IsEmpty)
             {
+                PassInfo pInfo;
+                while (!passesAwatingCompletionProcessing.TryDequeue(out pInfo)); // Keep tring if we collide
+
                 finishedPasses.Add(pInfo.pass.getPassName());
                 updateDataReadWriteStateForPassEnd(pInfo.pass);
                 numThreadsFree++;

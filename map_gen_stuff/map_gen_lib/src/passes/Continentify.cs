@@ -28,13 +28,14 @@ namespace MapGen
 
         public IEnumerable<string> getReqMapParams()
         {
-            return new string[] { CoreDataKeys.PARAM_CONTINENT_RAD_KEY };
+            return new string[] { CoreDataKeys.PARAM_CONTINENT_RAD_KEY, CoreDataKeys.PARAM_CONTINENTIFY_PERC_INFL_ON_CELL };
         }
 
         public void run(IMapInfo mapData)
         {
             float sea_start_rad_perc = (float)mapData.getParamData(CoreDataKeys.PARAM_CONTINENT_RAD_KEY);
             var hMap = (HeightMap)mapData.getMapData(CoreDataKeys.MDATA_HEIGHT_MAP_KEY);
+            var contPercInfluenceOnCell = (float)mapData.getParamData(CoreDataKeys.PARAM_CONTINENTIFY_PERC_INFL_ON_CELL);
 
             var centPos = new Vector2(hMap.dim.x / 2, hMap.dim.y / 2);
             var mapEdgeRadSqrd = Math.Pow(centPos.x, 2) + Math.Pow(centPos.y, 2);
@@ -54,12 +55,16 @@ namespace MapGen
 
                     // Sink this tile into the ocean!
                     var radFromShoreSqrd = distSqrd - shoreRadSqrd;
-                    var origCellPercHeight = 1.0f - (float)Math.Sqrt(radFromShoreSqrd / mapCornRadFromShoreSqrd);
+                    var percDistBetShoreAndMapCorn = radFromShoreSqrd / mapCornRadFromShoreSqrd;
                     
-                    var newCellHeight = ((float)hMap.cells[x, y] * origCellPercHeight);
-                    hMap.cells[x, y] = (byte)newCellHeight;
-                }
+                    var percHgtFromContinentify = (1.0f - percDistBetShoreAndMapCorn) * (contPercInfluenceOnCell);
+                    var percHgtFromOrigCell = 1.0f - contPercInfluenceOnCell;
 
+                    var hgtFromContinentify = percHgtFromContinentify * (float)hMap.cells[x, y];
+                    var hgtFromOrigCell = percHgtFromOrigCell * (float)hMap.cells[x, y];
+
+                    hMap.cells[x, y] = (byte)(hgtFromContinentify + hgtFromOrigCell);
+                }
         }
     }
 }

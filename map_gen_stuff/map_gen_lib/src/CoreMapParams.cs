@@ -6,6 +6,7 @@ namespace MapGen
         public static string PARAM_DIM_KEY = "dimensions";
         public static string PARAM_MHEIGHT_KEY = "max_height";
         public static string PARAM_WATER_PERC_KEY = "water_percentage";
+        public static string PARAM_CONTINENTIFY_PERC_INFL_ON_CELL = "continentify_infl_perc_on_cell";
         public static string PARAM_SEED_KEY = "seed";
 
         public static string PARAM_CONTINENT_RAD_KEY = "continent_radius";

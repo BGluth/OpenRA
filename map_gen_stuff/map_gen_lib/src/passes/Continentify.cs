@@ -63,7 +63,7 @@ namespace MapGen
                     var hgtFromContinentify = percHgtFromContinentify * (float)hMap.cells[x, y];
                     var hgtFromOrigCell = percHgtFromOrigCell * (float)hMap.cells[x, y];
 
-                    hMap.cells[x, y] = (byte)(hgtFromContinentify + hgtFromOrigCell);
+                    hMap.cells[x, y] = (float)(hgtFromContinentify + hgtFromOrigCell);
                 }
         }
     }

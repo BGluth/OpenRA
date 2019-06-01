@@ -17,11 +17,11 @@ namespace MapGen
             }
         }
 
-        public static void generateGreyscaleNoiseImage(CommonParams cParams, byte[,] noise, int maxVal)
+        public static void generateGreyscaleNoiseImage(CommonParams cParams, float[,] noise, float maxVal)
         {
             Func<int, int, SKColor> heightValToGreyColFunc = delegate (int x, int y)
             {
-                var col = (byte)(((float)noise[x, y] / (float)maxVal) * 255);
+                var col = (byte)((noise[x, y] / maxVal) * 255);
                 return new SKColor(col, col, col, 255);
             };
 

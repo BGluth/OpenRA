@@ -65,7 +65,7 @@ namespace MapGen
                 for (int y = 0; y < map_dim.y; y++)
                 {
                     var noise = ((noiseGen.GetCubicFractal(x, y) + 1.0f) / 2.0);
-                    var noise_val = (byte)(noise * hMap.maxHeight);
+                    var noise_val = (float)(noise * hMap.maxHeight);
                     hMap.cells[x, y] = noise_val;
                 }
 

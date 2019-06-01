@@ -43,24 +43,26 @@ namespace MapGen
             mapData.writeMapData(CoreDataKeys.MDATA_SEA_LEVEL_HEIGHT_KEY, water_level);
         }
 
-        int[] count_num_cells_with_each_height_level(HeightMap hMap, int maxHeight)
+        int[] count_num_cells_with_each_height_level(HeightMap hMap, float maxHeight)
         {
-            var num_cells_at_height_table = new int[maxHeight + 1];
+            var num_cells_at_height_table = new int[256];
 
             // Do a pass to determine the number of tiles at each possible height
+            float partitionSize = 1f / 256f;
             for (int x = 0; x < hMap.dim.x; x++)
                 for (int y = 0; y < hMap.dim.y; y++)
                 {
                     var height = hMap.cells[x, y];
-                    num_cells_at_height_table[height]++;
+                    var heightPartition = (int)(height / partitionSize);
+                    num_cells_at_height_table[heightPartition]++;
                 }
 
             return num_cells_at_height_table;
         }
 
-        int determine_needed_water_level_to_cover_perc_of_map(int[] num_cells_with_height_table, Vector2 mDim, float map_water_perc)
+        float determine_needed_water_level_to_cover_perc_of_map(int[] num_cells_with_height_table, Vector2 mDim, float map_water_perc)
         {
-            int needed_water_level = 0;
+            int needed_water_level_partition = 0;
             int num_tiles_covered = 0;
             int total_cells = mDim.x * mDim.y;
             int tot_cells_that_need_to_be_covered = (int)(total_cells * map_water_perc);
@@ -69,14 +71,15 @@ namespace MapGen
             while (num_tiles_covered < tot_cells_that_need_to_be_covered)
             {
                 num_tiles_covered += num_cells_with_height_table[curr_height];
-                needed_water_level++;
+                needed_water_level_partition++;
                 curr_height++;
             }
 
-            return needed_water_level;
+            var partitionHeight = 1f / 256f;
+            return needed_water_level_partition * partitionHeight;
         }
 
-        bool[,] determine_cell_map_covered_by_water(HeightMap hmap, int water_level)
+        bool[,] determine_cell_map_covered_by_water(HeightMap hmap, float water_level)
         {
             var cell_is_water_table = new bool[hmap.dim.x, hmap.dim.y];
 

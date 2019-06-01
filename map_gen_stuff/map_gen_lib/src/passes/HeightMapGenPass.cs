@@ -40,16 +40,16 @@ namespace MapGen
 
         public IEnumerable<string> getReqMapParams()
         {
-            return new string[] { CoreDataKeys.PARAM_DIM_KEY, CoreDataKeys.PARAM_MHEIGHT_KEY, CoreDataKeys.PARAM_SEED_KEY };
+            return new string[] { CoreDataKeys.PARAM_DIM_KEY, CoreDataKeys.PARAM_MAX_HEIGHT_KEY_PERC, CoreDataKeys.PARAM_SEED_KEY };
         }
 
         public void run(IMapInfo mapData)
         {
             var map_dim = (Vector2)mapData.getParamData(CoreDataKeys.PARAM_DIM_KEY);
-            var max_height = (int)mapData.getParamData(CoreDataKeys.PARAM_MHEIGHT_KEY);
+            var max_height_perc = (float)mapData.getParamData(CoreDataKeys.PARAM_MAX_HEIGHT_KEY_PERC);
             var seed = (int)mapData.getParamData(CoreDataKeys.PARAM_SEED_KEY);
 
-            HeightMap hMap = new HeightMap(map_dim, max_height);
+            HeightMap hMap = new HeightMap(map_dim, max_height_perc);
             var noiseGen = new FastNoise();
 
             // TODO: Later make this stuff parameters...
@@ -65,7 +65,7 @@ namespace MapGen
                 for (int y = 0; y < map_dim.y; y++)
                 {
                     var noise = ((noiseGen.GetCubicFractal(x, y) + 1.0f) / 2.0);
-                    var noise_val = (byte)(noise * max_height);
+                    var noise_val = (byte)(noise * hMap.maxHeight);
                     hMap.cells[x, y] = noise_val;
                 }
 

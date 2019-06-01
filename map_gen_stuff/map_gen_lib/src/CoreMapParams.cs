@@ -4,7 +4,7 @@ namespace MapGen
     {
         public static string PARAM_MAP_NAME_KEY = "map_name";
         public static string PARAM_DIM_KEY = "dimensions";
-        public static string PARAM_MHEIGHT_KEY = "max_height";
+        public static string PARAM_MAX_HEIGHT_KEY_PERC = "max_height_percentage";
         public static string PARAM_WATER_PERC_KEY = "water_percentage";
         public static string PARAM_CONTINENTIFY_PERC_INFL_ON_CELL = "continentify_infl_perc_on_cell";
         public static string PARAM_SEED_KEY = "seed";

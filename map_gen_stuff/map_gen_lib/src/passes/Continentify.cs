@@ -13,7 +13,7 @@ namespace MapGen
 
         public IEnumerable<string> getMapDataWritten()
         {
-            return new string[] { CoreDataKeys.PARAM_MHEIGHT_KEY };
+            return new string[] { CoreDataKeys.MDATA_HEIGHT_MAP_KEY };
         }
 
         public string getPassDesc()
